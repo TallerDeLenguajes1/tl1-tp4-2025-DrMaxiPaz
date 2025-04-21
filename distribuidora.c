@@ -37,6 +37,10 @@ void mostrarListas(Lista LP, Lista LR);
 
 Lista realizarTarea(Lista LP, Lista LR, int ID);
 
+Nodo *buscarNodo(Nodo *Start, int IdBuscado);
+
+void QuitarNodo(Nodo *Start, int ID);
+
 int main()
 {
     Lista TPendientes = crearlistaVacia();
@@ -44,10 +48,10 @@ int main()
     int orden = 999;
     char opc[10];
     char Buff[50];
+    Tarea nuevaTarea;
     do
     {
         orden++;
-        Tarea nuevaTarea;
         nuevaTarea.TareaID = orden; // asigno el ID
         printf("\n\tIngrese una tarea:");
         gets(Buff);
@@ -70,31 +74,44 @@ int main()
         } while (strcmp(opc, "si") != 0 && strcmp(opc, "no") != 0);
 
     } while (strcmp(opc, "si") == 0);
+
     printf("Finalizando ingreso de tareas...\n");
     printf("\n\tcantidad de tareas:%d", longitud(TPendientes));
 
-    /*fflush(stdin);
+    fflush(stdin);
+    int idTarea;
     do
     {
         mostrar(TPendientes);
-        int idTarea;
         printf("\n\n\tMarcando las tareas realizadas");
         do
         {
             printf("\n\tIngrese el ID de la tarea realizada(>=1000): ");
             scanf("%d", &idTarea);
         } while (idTarea < 1000);
-        printf("hola");
+        Nodo *nuevo = buscarNodo(TPendientes, idTarea);
+        if (nuevo == NULL)
+        {
+            printf("\n\tNo existe la tarea con el ID ingresado\n");
+        }
+        else
+        {
+            QuitarNodo(TPendientes, idTarea);
+            insertarNodo(&TRealizadas, nuevo);
+            printf("\n\tTarea marcada como realizada...\n");
+        }
+
+        /*printf("hola");
         TPendientes = realizarTarea(TPendientes, TRealizadas, idTarea);
-        printf("papa");
-        
+        printf("papa");*/
+
         do // control de si se ingresa marca otra tarea como realizada o no
         {
             fflush(stdin);
             printf("\n\tDesea marcar como realizada otra tarea(si/no):");
             gets(opc);
         } while (strcmp(opc, "si") != 0 && strcmp(opc, "no") != 0);
-    } while (strcmp(opc, "si") == 0);*/
+    } while (strcmp(opc, "si") == 0);
 
     //    mostrar(TPendientes);
     mostrarListas(TPendientes, TRealizadas);
@@ -148,10 +165,10 @@ void mostrar(Lista L)
     {
         while (!esListaVacia(L))
         {
-            printf("\n\tTarea: ");
+            printf("\nTarea: ");
             printf("\n\tID: %d ", L->T.TareaID);
             printf("\n\tDescripcion: %s ", L->T.Descripcion);
-            printf("\n\tDuracion %d s", L->T.Duracion);
+            printf("\n\tDuracion %ds", L->T.Duracion);
             L = L->Siguiente;
         }
     }
@@ -161,31 +178,34 @@ void mostrarListas(Lista LP, Lista LR)
 {
     if (esListaVacia(LP))
     {
-        printf("\n\tNo hay tareas pendientes");
+        printf("\n\tNo hay tareas pendientes...\n");
     }
     else
     {
+        printf("\n******Lista de tareas pendientes******\n");
         while (!esListaVacia(LP))
         {
-            printf("\n\tLista de tareas pendientes\n\tTarea: ");
+            printf("\nTarea: ");
             printf("\n\tID: %d ", LP->T.TareaID);
             printf("\n\tDescripcion: %s ", LP->T.Descripcion);
-            printf("\n\tDuracion %d s", LP->T.Duracion);
+            printf("\n\tDuracion %ds", LP->T.Duracion);
             LP = LP->Siguiente;
         }
     }
+    printf("\n");
     if (esListaVacia(LR))
     {
-        printf("\n\tNo hay tareas realizadas");
+        printf("\n\tNo hay tareas realizadas...\n");
     }
     else
     {
+        printf("\n\t******Lista de tareas realizadas******\n");
         while (!esListaVacia(LR))
         {
-            printf("\n\tLista de tareas realizadas\n\tTarea: ");
-            printf("\n\tID: %d ", LR->T.TareaID);
-            printf("\n\tDescripcion: %s ", LR->T.Descripcion);
-            printf("\n\tDuracion %d s", LR->T.Duracion);
+            printf("\nTarea: ");
+            printf("\n\tID: %d", LR->T.TareaID);
+            printf("\n\tDescripcion: %s", LR->T.Descripcion);
+            printf("\n\tDuracion %ds", LR->T.Duracion);
             LR = LR->Siguiente;
         }
     }
@@ -202,35 +222,27 @@ int longitud(Lista L)
     return cantidad;
 }
 
-Lista realizarTarea(Lista LP, Lista LR, int ID)// cambia una tarea de pendiente a realizada
+Nodo *buscarNodo(Nodo *Start, int IdBuscado)
 {
-    if (esListaVacia(LP)) // si la lista esta vacia retorna la lista
+    Nodo *Aux = Start;
+    while (Aux && Aux->T.TareaID != IdBuscado)
     {
-        return LP;
+        Aux = Aux->Siguiente;
     }
-    Nodo *aux, *aux1;
-    aux = LP->Siguiente; // aux apunta al segundo elemento de la lista
-    if (aux == NULL && aux->T.TareaID == ID) // controla si es el primer elemento contiene el ID que se busca
+    return Aux;
+}
+
+void QuitarNodo(Nodo *Start, int ID)
+{
+    Nodo **aux = &Start;
+    while (*aux != NULL && (*aux)->T.TareaID != ID)
     {
-        printf("chau");
-        LP = NULL;
-        insertarNodo(&LR, aux); // inserta el nodo con la tarea realizada
-        return LP;
+        aux = &(*aux)->Siguiente;
     }
-    aux1 = aux->Siguiente;
-    while (aux1->T.TareaID != ID) // controlo si los demas elementos contienen el ID buscado
+    if (*aux)
     {
-        if (aux1 == NULL) // si el nodo apunta a NULL significa que es el ultimo y por lo tanto no hay coincidencias
-        {
-            printf("No existe el id ingresado...");
-            return LP;
-        }
-        aux = aux1;
-        aux1 = aux1->Siguiente;
+        Nodo *temp = *aux;
+        *aux = (*aux)->Siguiente;
+        temp->Siguiente = NULL;
     }
-    // si sale entonces encontro coincidencia
-    aux = aux1->Siguiente; // desvinculo el nodo con la tarea realizada de la lista de pendientes
-    aux1->Siguiente = NULL;
-    insertarNodo(&LR, aux1); // inserto nodo con la tarea realizada
-    return LP;
 }
