@@ -35,9 +35,9 @@ int longitud(Lista L);
 
 void mostrarListas(Lista LP, Lista LR);
 
-Lista realizarTarea(Lista LP, Lista LR, int ID);
+Nodo *buscarNodoPorId(Nodo *Start, int IdBuscado);
 
-Nodo *buscarNodo(Nodo *Start, int IdBuscado);
+Nodo *buscarNodoPorPalabra(Nodo *Start, char palabra[]);
 
 void QuitarNodo(Nodo *Start, int ID);
 
@@ -89,7 +89,7 @@ int main()
             printf("\n\tIngrese el ID de la tarea realizada(>=1000): ");
             scanf("%d", &idTarea);
         } while (idTarea < 1000);
-        Nodo *nuevo = buscarNodo(TPendientes, idTarea);
+        Nodo *nuevo = buscarNodoPorId(TPendientes, idTarea);
         if (nuevo == NULL)
         {
             printf("\n\tNo existe la tarea con el ID ingresado\n");
@@ -101,11 +101,7 @@ int main()
             printf("\n\tTarea marcada como realizada...\n");
         }
 
-        /*printf("hola");
-        TPendientes = realizarTarea(TPendientes, TRealizadas, idTarea);
-        printf("papa");*/
-
-        do // control de si se ingresa marca otra tarea como realizada o no
+        do // control de si se ingresa marcar otra tarea como realizada o no
         {
             fflush(stdin);
             printf("\n\tDesea marcar como realizada otra tarea(si/no):");
@@ -113,8 +109,106 @@ int main()
         } while (strcmp(opc, "si") != 0 && strcmp(opc, "no") != 0);
     } while (strcmp(opc, "si") == 0);
 
-    //    mostrar(TPendientes);
     mostrarListas(TPendientes, TRealizadas);
+
+    fflush(stdin);
+    printf("\n\tBuscar tarea por 'palabra' o por 'ID': ");
+    fgets(opc, sizeof(opc), stdin);
+    opc[strcspn(opc, "\n")] = 0; // Eliminar el salto de línea
+
+    while (strcmp(opc, "palabra") != 0 && strcmp(opc, "ID") != 0) // controla si se ingreso "palabra" o "ID"
+    {
+        printf("\tOpcion no valida. Ingrese 'palabra' o 'ID': ");
+        fgets(opc, sizeof(opc), stdin);
+        opc[strcspn(opc, "\n")] = 0; // Eliminar el salto de línea
+    }
+
+    while (strcmp(opc, "palabra") != 0 && strcmp(opc, "ID") != 0) // controla si se ingreso "palabra" o "ID"
+    {
+        printf("\tOpcion no valida. Ingrese 'palabra' o 'ID': ");
+        fgets(opc, sizeof(opc), stdin);
+        opc[strcspn(opc, "\n")] = 0; // Eliminar el salto de línea
+    }
+
+    if (strcmp(opc, "palabra") == 0) // controla si se ingreso "palabra"
+    {
+        printf("\n\tIngrese la palabra a buscar: ");
+        char palabraBuscada[30];
+        scanf("%s", palabraBuscada);
+
+        Nodo *NodoPalabra1 = buscarNodoPorPalabra(TPendientes, palabraBuscada);
+        Nodo *NodoPalabra2 = buscarNodoPorPalabra(TRealizadas, palabraBuscada);
+
+        if (NodoPalabra1 != NULL && NodoPalabra2 != NULL)
+        {
+            printf("\n\tPalabra encontrada en ambas listas\n");
+            printf("\n******Lista Pendientes******\n");
+            printf("\nTarea: ");
+            printf("\n\tID: %d ", NodoPalabra1->T.TareaID);
+            printf("\n\tDescripcion: %s ", NodoPalabra1->T.Descripcion);
+            printf("\n\tDuracion %ds", NodoPalabra1->T.Duracion);
+            printf("\n******Lista Reslizadas******\n");
+            printf("\nTarea: ");
+            printf("\n\tID: %d ", NodoPalabra2->T.TareaID);
+            printf("\n\tDescripcion: %s ", NodoPalabra2->T.Descripcion);
+            printf("\n\tDuracion %ds", NodoPalabra2->T.Duracion);
+        }
+        else if (NodoPalabra1 != NULL)
+        {
+            printf("\n\tPalabra encontrada en lista de tareas pendientes\n");
+            printf("\n******Lista Pendientes******\n");
+            printf("\nTarea: ");
+            printf("\n\tID: %d ", NodoPalabra1->T.TareaID);
+            printf("\n\tDescripcion: %s ", NodoPalabra1->T.Descripcion);
+            printf("\n\tDuracion %ds", NodoPalabra1->T.Duracion);
+        }
+        else if (NodoPalabra2 != NULL)
+        {
+            printf("\n\tPalabra encontrada en lista de tareas realizadas\n");
+            printf("\n******Lista Pendientes******\n");
+            printf("\nTarea: ");
+            printf("\n\tID: %d ", NodoPalabra2->T.TareaID);
+            printf("\n\tDescripcion: %s ", NodoPalabra2->T.Descripcion);
+            printf("\n\tDuracion %ds", NodoPalabra2->T.Duracion);
+        }
+        else
+        {
+            printf("\tPalabra no encontrado en las listas...\n");
+        }
+    }
+
+    if (strcmp(opc, "ID") == 0) // controla si se ingreso "ID"
+    {
+        printf("\n\tIngrese el ID de la tarea a buscar: ");
+        int ID;
+        scanf("%d", &ID);
+
+        Nodo* nodoId1 = buscarNodoPorId(TPendientes, ID);
+        Nodo* nodoId2 = buscarNodoPorId(TRealizadas, ID);
+
+        if (nodoId1 != NULL)
+        {
+            printf("\n\tID encontrado en lista de tareas pendientes\n");
+            printf("\n******Lista Pendientes******\n");
+            printf("\nTarea: ");
+            printf("\n\tID: %d ", nodoId1->T.TareaID);
+            printf("\n\tDescripcion: %s ", nodoId1->T.Descripcion);
+            printf("\n\tDuracion %ds", nodoId1->T.Duracion);
+        }
+        else if (nodoId2 != NULL)
+        {
+            printf("\n\tID encontrado en lista de tareas realizadas\n");
+            printf("\n******Lista Pendientes******\n");
+            printf("\nTarea: ");
+            printf("\n\tID: %d ", nodoId2->T.TareaID);
+            printf("\n\tDescripcion: %s ", nodoId2->T.Descripcion);
+            printf("\n\tDuracion %ds", nodoId2->T.Duracion);
+        }
+        else
+        {
+            printf("\tId no encontrado en las listas\n");
+        }
+    }
 
     for (int i = 0; i < longitud(TPendientes); i++) // libero la memoria de lista de tareas pendientes
     {
@@ -126,6 +220,7 @@ int main()
         free(TRealizadas->T.Descripcion);
         free(TRealizadas);
     }
+    
     return 0;
 }
 
@@ -222,10 +317,20 @@ int longitud(Lista L)
     return cantidad;
 }
 
-Nodo *buscarNodo(Nodo *Start, int IdBuscado)
+Nodo *buscarNodoPorId(Nodo *Start, int IdBuscado)
 {
     Nodo *Aux = Start;
     while (Aux && Aux->T.TareaID != IdBuscado)
+    {
+        Aux = Aux->Siguiente;
+    }
+    return Aux;
+}
+
+Nodo *buscarNodoPorPalabra(Nodo *Start, char palabra[])
+{
+    Nodo *Aux = Start;
+    while (Aux && strstr(Aux->T.Descripcion, palabra) == NULL)
     {
         Aux = Aux->Siguiente;
     }
